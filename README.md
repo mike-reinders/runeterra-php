@@ -1,6 +1,7 @@
 <h1 align="center">RuneterraPHP</h1>
 
-PHP library made for decoding deckcodes and encoding decks for [**Legends of Runeterra**](http://playruneterra.com). 
+PHP library made for decoding deckcodes and encoding decks for [**Legends of Runeterra**](http://playruneterra.com).  
+This Library is mostly based on [**SwitchbladeBot/runeterra**](https://github.com/SwitchbladeBot/runeterra) and was translated into PHP.
 
 ### Install
 ```
