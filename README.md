@@ -50,3 +50,10 @@ DeckEncoding::decode("CEBAIAICAMGRWMIHAECQOCQVC4RC6MICAEAQKKQBAEBASAQBAECQ6AQBAI
   ...
 ]
 ```
+
+
+### Run Tests (php7.2-cli required)
+```
+composer install --dev
+./vendor/bin/phpunit --bootstrap vendor/autoload.php --testdox tests
+```
