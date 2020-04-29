@@ -15,29 +15,7 @@ final class DeckEncodingTest extends TestCase  {
      * @throws Exception
      */
     private function getDeckCodesTestData() {
-        if (is_null($this->deckCodesTestData)) {
-            $cases = explode("\n\n", file_get_contents(__DIR__.'/DeckCodesTestData.txt'));
-
-            $matches = [];
-            foreach ($cases as $case) {
-                if (preg_match("/^\\n*([A-Z0-9]+)((?:\\n\\d+\\:\\d{2}[A-Z]{2}\\d{3})*)\\n*$/", $case, $case_matches) !== 1) {
-                    throw new Exception('Failed to validate deck codes test data');
-                }
-                $deckCode = $case_matches[1];
-                $expectingDeck = explode("\n", trim($case_matches[2]));
-                foreach ($expectingDeck as $key => $card) {
-                    $cardInfo = explode(":", $card);
-
-                    $expectingDeck[$key] = [$cardInfo[1], $cardInfo[0]];
-                }
-
-                $matches[$deckCode] = $expectingDeck;
-            }
-
-            $this->deckCodesTestData = $matches;
-        }
-
-        return $this->deckCodesTestData;
+        return require(__DIR__.'/DeckCodesTestData.php');
     }
 
     /**
