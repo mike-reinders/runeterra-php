@@ -10,19 +10,17 @@ use Base32\Base32;
  */
 final class DeckEncoding {
 
-    private const MAX_KNOWN_VERSION = 3;
+    private const MAX_KNOWN_VERSION = 2;
 
     private const FACTIONS = [
-        'DE',
-        'FR',
-        'IO',
-        'NX',
-        'PZ',
-        'SI',
-        'BW',
-        '',
-        '',
-        'MT'
+        0 => 'DE',
+        1 => 'FR',
+        2 => 'IO',
+        3 => 'NX',
+        4 => 'PZ',
+        5 => 'SI',
+        6 => 'BW',
+        9 => 'MT'
     ];
 
     /**
