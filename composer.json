@@ -1,7 +1,7 @@
 {
   "name": "mike-reinders/runeterra-php",
   "type": "library",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Legends of Runeterra DeckCode Encoder/Decoder for PHP",
   "keywords": ["legends","runeterra","deckcode","encoder","decoder","php"],
   "homepage": "https://github.com/mike-reinders/runeterra-php",
