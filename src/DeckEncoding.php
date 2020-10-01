@@ -3,6 +3,7 @@
 namespace MikeReinders\RuneTerraPHP;
 
 use Base32\Base32;
+use InvalidArgumentException;
 
 /**
  * Class DeckEncoding
@@ -52,7 +53,7 @@ final class DeckEncoding {
      * @param string $code
      * @param bool $cardCodes if true, outputs cardcodes instead of identifiers
      * @return array
-     * @throws \InvalidArgumentException when the given deck code couldn't be decoded to a deck/array of possible (valid) values
+     * @throws InvalidArgumentException when the given deck code couldn't be decoded to a deck/array of possible (valid) values
      */
     public static function decode(string $code, bool $cardCodes = true): array {
         $result = [];
@@ -63,7 +64,7 @@ final class DeckEncoding {
         $version = $firstByte & 0xF;
 
         if ($version > DeckEncoding::MAX_KNOWN_VERSION) {
-            throw new \InvalidArgumentException("Unsupported Version > ".DeckEncoding::MAX_KNOWN_VERSION);
+            throw new InvalidArgumentException("Unsupported Version > ".DeckEncoding::MAX_KNOWN_VERSION);
         }
 
         for ($i = 3; $i > 0; $i--) {
@@ -125,17 +126,17 @@ final class DeckEncoding {
      *
      * @param array $deck
      * @return string
-     * @throws \InvalidArgumentException when the given deck is invalid
+     * @throws InvalidArgumentException when the given deck is invalid
      */
     public static function encode(array $deck): string {
         if (!self::isValidDeck($deck)) {
-            throw new \InvalidArgumentException("Given deck is invalid");
+            throw new InvalidArgumentException("Given deck is invalid");
         }
 
         foreach ($deck as $key => $card) {
             if (sizeof($card) == 2) {
                 if (preg_match("/^(\\d{2,})([A-Z]{2})(\\d{3,})$/", $card[0], $matches) !== 1) {
-                    throw new \InvalidArgumentException('Invalid CardCode');
+                    throw new InvalidArgumentException('Invalid CardCode');
                 }
                 $deck[$key] = [
                     intval($matches[1]),
@@ -354,7 +355,7 @@ final class DeckEncoding {
             return self::FACTIONS[$id];
         }
 
-        throw new \InvalidArgumentException('Invalid faction id');
+        throw new InvalidArgumentException('Invalid faction id');
     }
 
     /**
@@ -366,7 +367,7 @@ final class DeckEncoding {
             return $id;
         }
 
-        throw new \InvalidArgumentException('Invalid faction code');
+        throw new InvalidArgumentException('Invalid faction code');
     }
 
 }
