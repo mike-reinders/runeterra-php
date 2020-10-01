@@ -3,6 +3,8 @@
 A PHP library based on [**SwitchbladeBot/runeterra**](https://github.com/SwitchbladeBot/runeterra) developed for  
 decoding deckcodes and encoding decks for [**Legends of Runeterra**](http://playruneterra.com).  
 
+[![Build Status](https://secure.travis-ci.org/mike-reinders/runeterra-php.png)](https://travis-ci.org/mike-reinders/runeterra-php) [![Latest Stable Version](https://poser.pugx.org/mike-reinders/runeterra-php/v)](https://packagist.org/packages/mike-reinders/runeterra-php) [![Total Downloads](https://poser.pugx.org/mike-reinders/runeterra-php/downloads)](https://packagist.org/packages/mike-reinders/runeterra-php) [![Latest Unstable Version](https://poser.pugx.org/mike-reinders/runeterra-php/v/unstable)](https://packagist.org/packages/mike-reinders/runeterra-php) [![License](https://poser.pugx.org/mike-reinders/runeterra-php/license)](https://packagist.org/packages/mike-reinders/runeterra-php)
+
 ## Install
 ```
 composer require mike-reinders/runeterra-php
