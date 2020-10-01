@@ -76,7 +76,10 @@ docker build --no-cache -t runeterra-php:latest ./docker
 # simply run
 docker run --name=runeterra-php --rm -it runeterra-php test
 
-# watch: Linux Shell / Windows Powershell
+# watch: Linux Shell
+docker run --name=runeterra-php --rm --volume "/${PWD}:/repository:rw" -it runeterra-php test watch
+
+# watch: Windows Powershell
 docker run --name=runeterra-php --rm --volume "${PWD}:/repository:rw" -it runeterra-php test watch
 
 # watch: Windows Command Prompt (CMD)
