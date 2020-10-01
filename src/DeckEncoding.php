@@ -25,10 +25,10 @@ final class DeckEncoding {
     ];
 
     /**
-     * Decodes a Deck-Code
+     * Decodes a deck code
      * e.g. CEAAECABAQJRWHBIFU2DOOYIAEBAMCIMCINCILJZAICACBANE4VCYBABAILR2HRL
      *
-     * to an array of card identifiers like:
+     * to an array of counted card identifiers like:
      *
      * [
      *    [
@@ -40,7 +40,7 @@ final class DeckEncoding {
      *    ...
      * ]
      *
-     * or an array of card codes like:
+     * or an array of counted card codes like:
      *
      * [
      *    [
@@ -275,7 +275,7 @@ final class DeckEncoding {
     /**
      * Determines whether the given deck is valid
      *
-     * The Deck must follow this pattern: (total cards must count exactly 40)
+     * The deck must follow this pattern: (total cards must count exactly 40)
      *
      * [
      *    [
