@@ -272,7 +272,7 @@ final class DeckEncoding {
     /**
      * Determines whether the given deck is valid
      *
-     * The deck must follow this pattern: (total cards must count exactly 40)
+     * The deck must follow this pattern:
      *
      * [
      *    [
