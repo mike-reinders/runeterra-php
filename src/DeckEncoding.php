@@ -135,13 +135,10 @@ final class DeckEncoding {
 
         foreach ($deck as $key => $card) {
             if (sizeof($card) == 2) {
-                if (preg_match("/^(\\d{2,})([A-Z]{2})(\\d{3,})$/", $card[0], $matches) !== 1) {
-                    throw new InvalidArgumentException('Invalid CardCode');
-                }
                 $deck[$key] = [
-                    intval($matches[1]),
-                    self::factionIdByCode($matches[2]),
-                    intval($matches[3]),
+                    intval(substr($card[0], 0, 2)),
+                    self::factionIdByCode(substr($card[0], 2, 2)),
+                    intval(substr($card[0], 4, 3)),
                     $card[1]
                 ];
             }
