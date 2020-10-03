@@ -336,10 +336,6 @@ final class DeckEncoding {
 
         }
 
-        if ($totalCards != 40) {
-            return false;
-        }
-
         return true;
     }
 
