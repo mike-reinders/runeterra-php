@@ -13,7 +13,10 @@ final class DeckEncodingTest extends TestCase  {
      * @throws Exception
      */
     private function getDeckCodesTestData(): array {
-        return require(__DIR__.'/DeckCodesTestData.php');
+        return array_merge(
+            require(__DIR__.'/DeckCodesTestData.php'),
+            require(__DIR__.'/RiotGamesTestData.php')
+        );
     }
 
     /**
