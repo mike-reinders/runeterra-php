@@ -8,20 +8,18 @@ use PHPUnit\Framework\TestCase;
 
 final class DeckEncodingTest extends TestCase  {
 
-    private $deckCodesTestData;
-
     /**
      * @return array
      * @throws Exception
      */
-    private function getDeckCodesTestData() {
+    private function getDeckCodesTestData(): array {
         return require(__DIR__.'/DeckCodesTestData.php');
     }
 
     /**
      * @throws Exception
      */
-    public function testDeckencodingSelftestAndTestdataFailTest(): void
+    public function testDeckEncodingSelfTestAndTestDataFailTest(): void
     {
         $previousExpectedDeck = null;
         foreach ($this->getDeckCodesTestData() as $deckCode => $expectedDeck) {
@@ -42,7 +40,7 @@ final class DeckEncodingTest extends TestCase  {
     /**
      * @throws Exception
      */
-    public function testDeckencodingSelftestAndTestdataTest(): void
+    public function testDeckEncodingSelfTestAndTestDataTest(): void
     {
         foreach ($this->getDeckCodesTestData() as $deckCode => $expectedDeck) {
             $encodedDeck = DeckEncoding::decode($deckCode);
