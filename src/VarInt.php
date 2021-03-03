@@ -23,7 +23,7 @@ final class VarInt {
         $result = 0;
         $bytesPopped = 0;
 
-        for ($i = 0, $m = strlen($bytes); $i < $m; $i++) {
+        for ($i = 0, $m = (strlen($bytes) - $offset); $i < $m; $i++) {
             $byte = ord($bytes[$offset + $i]);
 
             $result |= ($byte & VarInt::AllButMSB) << ($i * 7);
