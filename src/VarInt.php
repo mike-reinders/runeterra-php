@@ -16,19 +16,20 @@ final class VarInt {
     /**
      * @param string $bytes
      * @param int $offset
-     * @param int $bytesPopped
+     * @param int|null $bytesPopped
      * @return int
      */
-    public static function pop(string $bytes, int $offset, int &$bytesPopped): int {
+    public static function pop(string $bytes, int $offset = 0, int &$bytesPopped = null): int {
         $result = 0;
+        $bytesPopped = 0;
 
-        for ($i = $offset, $m = strlen($bytes); $i < $m; $i++) {
-            $byte = ord($bytes[$i]);
+        for ($i = 0, $m = strlen($bytes); $i < $m; $i++) {
+            $byte = ord($bytes[$offset + $i]);
 
             $result |= ($byte & VarInt::AllButMSB) << ($i * 7);
 
             if (($byte & VarInt::JustMSB) != VarInt::JustMSB) {
-                $bytesPopped = $i;
+                $bytesPopped = $i + 1;
                 return $result;
             }
         }
