@@ -10,29 +10,27 @@ use InvalidArgumentException;
  */
 final class VarInt {
 
-    private const AllButMSB = 0x7f;
+    private const AllButMSB = 0x7F;
     private const JustMSB = 0x80;
 
     /**
      * @param string $bytes
+     * @param int $offset
+     * @param int $bytesPopped
      * @return int
      */
-    public static function pop(string &$bytes): int {
+    public static function pop(string $bytes, int $offset, int &$bytesPopped): int {
         $result = 0;
-        $currentShift = 0;
-        $bytesPopped = 0;
 
-        for ($i = 0; $i < strlen($bytes); $i++) {
-            $bytesPopped++;
-            $current = ord($bytes[$i]) & VarInt::AllButMSB;
-            $result |= $current << $currentShift;
+        for ($i = $offset, $m = strlen($bytes); $i < $m; $i++) {
+            $byte = ord($bytes[$i]);
 
-            if ((ord($bytes[$i]) & VarInt::JustMSB) !== VarInt::JustMSB) {
-                $bytes = substr($bytes, $bytesPopped);
+            $result |= ($byte & VarInt::AllButMSB) << ($i * 7);
+
+            if (($byte & VarInt::JustMSB) != VarInt::JustMSB) {
+                $bytesPopped = $i;
                 return $result;
             }
-
-            $currentShift += 7;
         }
 
         throw new InvalidArgumentException('Byte array did not contain valid varints.');
