@@ -2,6 +2,7 @@
 
 namespace MikeReinders\RuneTerraPHP\Tests;
 
+use Base32\Base32;
 use Exception;
 use MikeReinders\RuneTerraPHP\DeckEncoding;
 use PHPUnit\Framework\TestCase;
@@ -55,8 +56,8 @@ final class DeckEncodingTest extends TestCase  {
             );
 
             $this->assertEquals(
-                $deckCode,
-                DeckEncoding::encode($encodedDeck),
+                Base32::encode(substr(Base32::decode($deckCode), 1)),
+                Base32::encode(substr(Base32::decode(DeckEncoding::encode($encodedDeck)), 1)),
                 'Failed to verify DeckCode-Equality for DeckCode:'.$deckCode
             );
         }

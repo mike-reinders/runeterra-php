@@ -60,7 +60,10 @@ final class DeckEncoding {
 
         $bytes = Base32::decode($code);
 
-        $firstByte = ord($bytes[0]); $bytes = substr($bytes, 1);
+        $firstByte = ord($bytes[0]);
+        $bytes = substr($bytes, 1);
+
+        $format = $firstByte >> 4;
         $version = $firstByte & 0xF;
 
         if ($version > DeckEncoding::MAX_KNOWN_VERSION) {
@@ -145,7 +148,7 @@ final class DeckEncoding {
         }
 
         return rtrim(Base32::encode(
-            "\x11"
+            "\x12"
             .self::encodeGroup(self::groupByFactionAndSetSorted(self::getNcards($deck, 3)))
             .self::encodeGroup(self::groupByFactionAndSetSorted(self::getNcards($deck, 2)))
             .self::encodeGroup(self::groupByFactionAndSetSorted(self::getNcards($deck, 1)))
