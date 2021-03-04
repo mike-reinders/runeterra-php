@@ -13,42 +13,85 @@ composer require mike-reinders/runeterra-php
 [Download **Composer PHP Dependency Manager**](https://getcomposer.org/download/)
 
 ## Guideline
+
+### raw deck
 ```php
-DeckEncoding::decode("CEBAIAICAMGRWMIHAECQOCQVC4RC6MICAEAQKKQBAEBASAQBAECQ6AQBAIDSA", true);
-DeckEncoding::decode("CEBAIAICAMGRWMIHAECQOCQVC4RC6MICAEAQKKQBAEBASAQBAECQ6AQBAIDSA", false);
+// DeckEncoding
+$raw_deck = DeckEncoding::decode("CEBAIAICAMGRWMIHAECQOCQVC4RC6MICAEAQKKQBAEBASAQBAECQ6AQBAIDSA");
+$deck_code = DeckEncoding::encode($raw_deck);
+
+// or DeckEncodingFactory
+$raw_deck = DeckEncodingFactory::toRawDeck("CEBAIAICAMGRWMIHAECQOCQVC4RC6MICAEAQKKQBAEBASAQBAECQ6AQBAIDSA");
+$deck_code = DeckEncodingFactory::fromRawDeck($raw_deck);
 ```
 
-#### Result
+##### return format
 ```php
-// Array of counted card codes
-[
-  [ 0 => "01IO003", 1 => 3 ], // CardCode, Count
-  [ 0 => "01IO013", 1 => 3 ],
-  [ 0 => "01IO027", 1 => 3 ],
-  [ 0 => "01IO049", 1 => 3 ],
-  [ 0 => "01SI007", 1 => 3 ],
-  [ 0 => "01SI010", 1 => 3 ],
-  [ 0 => "01SI021", 1 => 3 ],
-  [ 0 => "01SI023", 1 => 3 ],
-  [ 0 => "01SI034", 1 => 3 ],
-  [ 0 => "01SI047", 1 => 3 ],
-  [ 0 => "01SI049", 1 => 3 ],
-  [ 0 => "01SI042", 1 => 2 ],
-  [ 0 => "01IO009", 1 => 2 ],
-  [ 0 => "01SI015", 1 => 1 ],
-  [ 0 => "01IO007", 1 => 1 ],
-  [ 0 => "01IO032", 1 => 1 ],
-  ...
-];
-
-// Array of counted card identifiers
-[
+$raw_deck = [
   [
     0 => 1,  // set
     1 => 2,  // faction id
     2 => 3,  // card number
     3 => 3   // card count
   ],
+  ...
+];
+```
+
+### card code deck
+```php
+// DeckEncodingFactory
+$card_code_deck = DeckEncodingFactory::toCardCodeDeck("CEBAIAICAMGRWMIHAECQOCQVC4RC6MICAEAQKKQBAEBASAQBAECQ6AQBAIDSA");
+$deck_code = DeckEncodingFactory::fromCardCodeDeck($card_code_deck);
+```
+
+##### return format
+```php
+$card_code_deck = [
+  "01IO003" => 3, // card code => count
+  "01IO013" => 3,
+  "01SI049" => 3,
+  "01SI042" => 2,
+  "01IO009" => 2,
+  "01SI015" => 1,
+  ...
+];
+```
+
+### card deck
+```php
+// DeckEncodingFactory
+$card_deck = DeckEncodingFactory::toCardDeck("CEBAIAICAMGRWMIHAECQOCQVC4RC6MICAEAQKKQBAEBASAQBAECQ6AQBAIDSA", Card::class);
+$deck_code = DeckEncodingFactory::fromCardDeck($card_deck);
+```
+
+##### return format
+```php
+$card_deck = [
+  Card {
+    #set: 1
+    #faction_id: 2
+    #number: 3
+    #count: 3
+  },
+  Card {
+    #set: 1
+    #faction_id: 2
+    #number: 13
+    #count: 3
+  },
+  Card {
+    #set: 1
+    #faction_id: 2
+    #number: 27
+    #count: 3
+  },
+  Card {
+    #set: 1
+    #faction_id: 2
+    #number: 49
+    #count: 3
+  }
   ...
 ];
 ```
