@@ -3,15 +3,13 @@
 namespace MikeReinders\RuneTerraPHP\Tests;
 
 use Base32\Base32;
-use Exception;
-use MikeReinders\RuneTerraPHP\DeckEncoding;
+use MikeReinders\RuneTerraPHP\DeckEncodingFactory;
 use PHPUnit\Framework\TestCase;
 
 final class DeckEncodingTest extends TestCase  {
 
     /**
      * @return array
-     * @throws Exception
      */
     private function getDeckCodesTestData(): array {
         return array_merge(
@@ -20,18 +18,15 @@ final class DeckEncodingTest extends TestCase  {
         );
     }
 
-    /**
-     * @throws Exception
-     */
     public function testDeckEncodingSelfTestAndTestDataFailTest(): void
     {
         $previousExpectedDeck = null;
         foreach ($this->getDeckCodesTestData() as $deckCode => $expectedDeck) {
 
-            if (!is_null($previousExpectedDeck)) {
-                $encodedDeck = DeckEncoding::decode($deckCode);
+            if ($previousExpectedDeck !== null) {
+                $encodedDeck = DeckEncodingFactory::toCardCodeDeck($deckCode);
 
-                $this->assertNotEqualsCanonicalizing(
+                $this->assertNotEquals(
                     $previousExpectedDeck,
                     $encodedDeck
                 );
@@ -41,24 +36,21 @@ final class DeckEncodingTest extends TestCase  {
         }
     }
 
-    /**
-     * @throws Exception
-     */
     public function testDeckEncodingSelfTestAndTestDataTest(): void
     {
-        foreach ($this->getDeckCodesTestData() as $deckCode => $expectedDeck) {
-            $encodedDeck = DeckEncoding::decode($deckCode);
+        foreach ($this->getDeckCodesTestData() as $deck_code => $expected_deck) {
+            $encodedDeck = DeckEncodingFactory::toCardCodeDeck($deck_code);
 
             $this->assertEqualsCanonicalizing(
-                $expectedDeck,
+                $expected_deck,
                 $encodedDeck,
-                'Failed to verify Deck-Equality for DeckCode:'.$deckCode
+                'Failed to verify Deck-Equality for DeckCode:'.$deck_code
             );
 
             $this->assertEquals(
-                Base32::encode(substr(Base32::decode($deckCode), 1)),
-                Base32::encode(substr(Base32::decode(DeckEncoding::encode($encodedDeck)), 1)),
-                'Failed to verify DeckCode-Equality for DeckCode:'.$deckCode
+                Base32::encode(substr(Base32::decode($deck_code), 1)),
+                Base32::encode(substr(Base32::decode(DeckEncodingFactory::fromCardCodeDeck($encodedDeck)), 1)),
+                'Failed to verify DeckCode-Equality for DeckCode:'.$deck_code
             );
         }
     }

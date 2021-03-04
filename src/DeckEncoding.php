@@ -3,7 +3,8 @@
 namespace MikeReinders\RuneTerraPHP;
 
 use Base32\Base32;
-use InvalidArgumentException;
+use MikeReinders\RuneTerraPHP\Exception\EncodingException;
+use MikeReinders\RuneTerraPHP\Exception\VarIntException;
 
 /**
  * Class DeckEncoding
@@ -11,149 +12,113 @@ use InvalidArgumentException;
  */
 final class DeckEncoding {
 
-    private const MAX_KNOWN_VERSION = 2;
+    public const MAX_KNOWN_VERSION = 2;
 
-    private const FACTIONS = [
-        0 => 'DE',
-        1 => 'FR',
-        2 => 'IO',
-        3 => 'NX',
-        4 => 'PZ',
-        5 => 'SI',
-        6 => 'BW',
-        9 => 'MT'
+    public const KNOWN_FACTIONS = [
+        0 => [ 'DE', 'Demacia' ],
+        1 => [ 'FR', 'Freljord' ],
+        2 => [ 'IO', 'Ionia' ],
+        3 => [ 'NX', 'Noxus' ],
+        4 => [ 'PZ', 'Piltover & Zaun' ],
+        5 => [ 'SI', 'Shadow Isles' ],
+        6 => [ 'BW', 'Bilgewater' ],
+        9 => [ 'MT', 'Mount Targon' ]
     ];
 
     /**
-     * Decodes a deck code
-     * e.g. CEAAECABAQJRWHBIFU2DOOYIAEBAMCIMCINCILJZAICACBANE4VCYBABAILR2HRL
-     *
-     * to an array of counted card identifiers like:
-     *
-     * [
-     *    [
-     *       0: set,            // int: min. 0 (usually up to 99 max)
-     *       1: factionId,      // int: min. 0 (usually up to 5 max)
-     *       2: cardNumber,     // int: min. 0 (usually up to 999 max)
-     *       3: cardCount       // int: min. 1 (usually up to 3 max)
-     *    ]
-     *    ...
-     * ]
-     *
-     * or an array of counted card codes like:
-     *
-     * [
-     *    [
-     *       0: cardCode     // string: e.g. 01DE123
-     *       1: cardCount    // int: min. 1 (usually up to 3 max)
-     *    ]
-     *    ...
-     * ]
-     *
-     * @param string $code
-     * @param bool $cardCodes if true, outputs cardcodes instead of identifiers
+     * @param string $deck_code
      * @return array
-     * @throws InvalidArgumentException when the given deck code couldn't be decoded to a deck/array of possible (valid) values
      */
-    public static function decode(string $code, bool $cardCodes = true): array {
-        $result = [];
+    public static function decode(string $deck_code): array {
+        try {
+            $result = [];
 
-        $bytes = Base32::decode($code);
+            $bytes = Base32::decode($deck_code);
+            $offset = 0;
 
-        $firstByte = ord($bytes[0]);
-        $bytes = substr($bytes, 1);
+            $firstByte = ord($bytes[0]);
+            $offset++;
 
-        $format = $firstByte >> 4;
-        $version = $firstByte & 0xF;
+            // $format = $firstByte >> 4; @unused
+            $version = $firstByte & 0xF;
 
-        if ($version > DeckEncoding::MAX_KNOWN_VERSION) {
-            throw new InvalidArgumentException("Unsupported Version > ".DeckEncoding::MAX_KNOWN_VERSION);
-        }
+            if ($version > DeckEncoding::MAX_KNOWN_VERSION) {
+                throw new EncodingException('Unsupported deck code version '.$version.' > '.DeckEncoding::MAX_KNOWN_VERSION);
+            }
 
-        for ($i = 3; $i > 0; $i--) {
-            $numGroupOfs = VarInt::pop($bytes);
+            $bytesPopped = 0;
+            for ($i = 3; $i > 0; $i--) {
+                $numGroupOfs = VarInt::pop($bytes, $offset, $bytesPopped); $offset += $bytesPopped;
 
-            for ($j = 0; $j < $numGroupOfs; $j++) {
+                for ($j = 0; $j < $numGroupOfs; $j++) {
+                    $numOfsInThisGroup = VarInt::pop($bytes, $offset, $bytesPopped); $offset += $bytesPopped;
+                    $set = VarInt::pop($bytes, $offset, $bytesPopped); $offset += $bytesPopped;
+                    $faction_id = VarInt::pop($bytes, $offset, $bytesPopped); $offset += $bytesPopped;
 
-                $numOfsInThisGroup = VarInt::pop($bytes);
-                $set = VarInt::pop($bytes);
-                $faction = VarInt::pop($bytes);
+                    for ($k = 0; $k < $numOfsInThisGroup; $k++) {
+                        $card = VarInt::pop($bytes, $offset, $bytesPopped); $offset += $bytesPopped;
 
-                for ($k = 0; $k < $numOfsInThisGroup; $k++) {
-                    $card = VarInt::pop($bytes);
-
-                    if ($cardCodes) {
-                        $result[] = [
-                            str_pad($set, 2, '0', STR_PAD_LEFT).self::factionById($faction).str_pad($card, 3, '0', STR_PAD_LEFT),
-                            $i
-                        ];
-                    } else {
                         $result[] = [
                             $set,
-                            $faction,
+                            $faction_id,
                             $card,
                             $i
                         ];
                     }
                 }
             }
-        }
 
-        while (strlen($bytes) > 0) {
-            $fourPlusCount = VarInt::pop($bytes);
-            $fourPlusSet = VarInt::pop($bytes);
-            $fourPlusFaction = VarInt::pop($bytes);
-            $fourPlusNumber = VarInt::pop($bytes);
+            while ((strlen($bytes) - $offset) > 0) {
+                $count = VarInt::pop($bytes, $offset, $bytesPopped); $offset += $bytesPopped;
+                $set = VarInt::pop($bytes, $offset, $bytesPopped); $offset += $bytesPopped;
+                $faction_id = VarInt::pop($bytes, $offset, $bytesPopped); $offset += $bytesPopped;
+                $number = VarInt::pop($bytes, $offset, $bytesPopped); $offset += $bytesPopped;
 
-            if ($cardCodes) {
                 $result[] = [
-                    str_pad($fourPlusSet, 2, '0', STR_PAD_LEFT).self::factionById($fourPlusFaction).str_pad($fourPlusNumber, 3, '0', STR_PAD_LEFT),
-                    $fourPlusCount
-                ];
-            } else {
-                $result[] = [
-                    $fourPlusSet,
-                    $fourPlusFaction,
-                    $fourPlusNumber,
-                    $fourPlusCount
+                    $set,
+                    $faction_id,
+                    $number,
+                    $count
                 ];
             }
-        }
 
-        return $result;
+            return $result;
+        } catch (VarIntException $ex) {
+            throw new EncodingException('Invalid deck: VarInt failed to read integer', 0, $ex);
+        }
     }
 
 
     /**
-     * Encodes an array of card identifiers like DeckEncoding::decode returns back to a deck code
-     *
-     * @param array $deck
+     * @param array $raw_deck
      * @return string
-     * @throws InvalidArgumentException when the given deck is invalid
      */
-    public static function encode(array $deck): string {
-        if (!self::isValidDeck($deck)) {
-            throw new InvalidArgumentException("Given deck is invalid");
-        }
+    public static function encode(array $raw_deck): string {
+        try {
+            foreach ($raw_deck as $raw_card) {
+                if ($isValid = (sizeof($raw_card) == 4)) {
+                    foreach ($raw_card as $value) {
+                        if (!($isValid = is_int($value))) {
+                            break;
+                        }
+                    }
+                }
 
-        foreach ($deck as $key => $card) {
-            if (sizeof($card) == 2) {
-                $deck[$key] = [
-                    intval(substr($card[0], 0, 2)),
-                    self::factionIdByCode(substr($card[0], 2, 2)),
-                    intval(substr($card[0], 4, 3)),
-                    $card[1]
-                ];
+                if (!$isValid) {
+                    throw new EncodingException('Invalid deck: card contains invalid values');
+                }
             }
-        }
 
-        return rtrim(Base32::encode(
-            "\x12"
-            .self::encodeGroup(self::groupByFactionAndSetSorted(self::getNcards($deck, 3)))
-            .self::encodeGroup(self::groupByFactionAndSetSorted(self::getNcards($deck, 2)))
-            .self::encodeGroup(self::groupByFactionAndSetSorted(self::getNcards($deck, 1)))
-            .self::encodeNofs($deck)
-        ), "=");
+            return rtrim(Base32::encode(
+                "\x12"
+                .self::encodeGroup(self::groupByFactionAndSetSorted(self::getNcards($raw_deck, 3)))
+                .self::encodeGroup(self::groupByFactionAndSetSorted(self::getNcards($raw_deck, 2)))
+                .self::encodeGroup(self::groupByFactionAndSetSorted(self::getNcards($raw_deck, 1)))
+                .self::encodeNofs($raw_deck)
+            ), "=");
+        } catch (VarIntException $ex) {
+            throw new EncodingException('Invalid deck: VarInt failed to read integer', 0, $ex);
+        }
     }
 
 
@@ -269,101 +234,6 @@ final class DeckEncoding {
                 return $a[0] > $b[0] ? 1 : -1;
             }
         });
-    }
-
-
-    /**
-     * Determines whether the given deck is valid
-     *
-     * The deck must follow this pattern:
-     *
-     * [
-     *    [
-     *       0: set,            // int: min. 0 (usually up to 99 max)
-     *       1: factionId,      // int: min. 0 (usually up to 5 max)
-     *       2: cardNumber,     // int: min. 0 (usually up to 999 max)
-     *       3: cardCount       // int: min. 1 (usually up to 3 max)
-     *    ]
-     *    ...
-     * ]
-     *
-     * or this to pass the test:
-     *
-     * [
-     *    [
-     *       0: cardCode     // string: e.g. 01DE123
-     *       1: cardCount    // int: min. 1 (usually up to 3 max)
-     *    ]
-     *    ...
-     * ]
-     *
-     * @param array $deck
-     * @return bool true if the deck is valid, false otherwise.
-     */
-    public static function isValidDeck(array $deck): bool {
-        $totalCards = 0;
-        foreach ($deck as $card) {
-            if (!is_array($card)) {
-                return false;
-            }
-
-            if (sizeof($card) == 2) {
-                if (!is_string($card[0]??null) || preg_match("/^\d{2,}[A-Z]{2}\d{3,}$/", $card[0]) !== 1) {
-                    return false;
-                }
-
-                if (!is_int($card[1]??null) || $card[1] < 1) {
-                    return false;
-                }
-                $totalCards+=$card[1];
-            } else if (sizeof($card) == 4) {
-                if (!is_int($card[0]??null) || $card[0] < 0) {
-                    return false;
-                }
-
-                if (!is_int($card[1]??null) || $card[1] < 0) {
-                    return false;
-                }
-
-                if (!is_int($card[2]??null) || $card[2] < 0) {
-                    return false;
-                }
-
-                if (!is_int($card[3]??null) || $card[3] < 1) {
-                    return false;
-                }
-                $totalCards+=$card[3];
-            } else {
-                return false;
-            }
-
-        }
-
-        return true;
-    }
-
-    /**
-     * @param int $id
-     * @return string
-     */
-    private static function factionById(int $id): string {
-        if (isset(self::FACTIONS[$id])) {
-            return self::FACTIONS[$id];
-        }
-
-        throw new InvalidArgumentException('Invalid faction id');
-    }
-
-    /**
-     * @param string $code
-     * @return int
-     */
-    private static function factionIdByCode(string $code): int {
-        if (($id = array_search($code, self::FACTIONS)) !== false) {
-            return $id;
-        }
-
-        throw new InvalidArgumentException('Invalid faction code');
     }
 
 }

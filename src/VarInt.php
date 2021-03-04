@@ -2,7 +2,7 @@
 
 namespace MikeReinders\RuneTerraPHP;
 
-use InvalidArgumentException;
+use MikeReinders\RuneTerraPHP\Exception\VarIntException;
 
 /**
  * Class VarInt
@@ -34,20 +34,19 @@ final class VarInt {
             }
         }
 
-        throw new InvalidArgumentException('Byte array did not contain valid varints.');
+        throw new VarIntException('Byte array did not contain valid varints.');
     }
 
 
     /**
      * @param int $value
      * @return string
-     * @throws InvalidArgumentException when $value is a negative integer
      */
     public static function get(int $value): string {
         $buff = "\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0";
 
         if ($value < 0) {
-            throw new InvalidArgumentException('VarInt requires non-negative values');
+            throw new VarIntException('VarInt requires non-negative values');
         }
 
         $currentIndex = 0;
