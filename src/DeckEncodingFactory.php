@@ -5,7 +5,6 @@ namespace MikeReinders\RuneTerraPHP;
 use InvalidArgumentException;
 use MikeReinders\RuneTerraPHP\Entity\Card;
 use MikeReinders\RuneTerraPHP\Entity\CardInterface;
-use MikeReinders\RuneTerraPHP\Exception\EncodingException;
 use ReflectionClass;
 use ReflectionException;
 

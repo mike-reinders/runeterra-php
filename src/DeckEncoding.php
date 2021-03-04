@@ -49,17 +49,17 @@ final class DeckEncoding {
                 throw new EncodingException('Unsupported deck code version '.$version.' > '.DeckEncoding::MAX_KNOWN_VERSION);
             }
 
-            $bytesPopped = 0;
+            $bytes_popped = 0;
             for ($i = 3; $i > 0; $i--) {
-                $numGroupOfs = VarInt::pop($bytes, $offset, $bytesPopped); $offset += $bytesPopped;
+                $group_count = VarInt::pop($bytes, $offset, $bytes_popped); $offset += $bytes_popped;
 
-                for ($j = 0; $j < $numGroupOfs; $j++) {
-                    $numOfsInThisGroup = VarInt::pop($bytes, $offset, $bytesPopped); $offset += $bytesPopped;
-                    $set = VarInt::pop($bytes, $offset, $bytesPopped); $offset += $bytesPopped;
-                    $faction_id = VarInt::pop($bytes, $offset, $bytesPopped); $offset += $bytesPopped;
+                for ($j = 0; $j < $group_count; $j++) {
+                    $group_size = VarInt::pop($bytes, $offset, $bytes_popped); $offset += $bytes_popped;
+                    $set = VarInt::pop($bytes, $offset, $bytes_popped); $offset += $bytes_popped;
+                    $faction_id = VarInt::pop($bytes, $offset, $bytes_popped); $offset += $bytes_popped;
 
-                    for ($k = 0; $k < $numOfsInThisGroup; $k++) {
-                        $card = VarInt::pop($bytes, $offset, $bytesPopped); $offset += $bytesPopped;
+                    for ($k = 0; $k < $group_size; $k++) {
+                        $card = VarInt::pop($bytes, $offset, $bytes_popped); $offset += $bytes_popped;
 
                         $raw_deck[] = [
                             $set,
@@ -72,10 +72,10 @@ final class DeckEncoding {
             }
 
             while ((strlen($bytes) - $offset) > 0) {
-                $count = VarInt::pop($bytes, $offset, $bytesPopped); $offset += $bytesPopped;
-                $set = VarInt::pop($bytes, $offset, $bytesPopped); $offset += $bytesPopped;
-                $faction_id = VarInt::pop($bytes, $offset, $bytesPopped); $offset += $bytesPopped;
-                $number = VarInt::pop($bytes, $offset, $bytesPopped); $offset += $bytesPopped;
+                $count = VarInt::pop($bytes, $offset, $bytes_popped); $offset += $bytes_popped;
+                $set = VarInt::pop($bytes, $offset, $bytes_popped); $offset += $bytes_popped;
+                $faction_id = VarInt::pop($bytes, $offset, $bytes_popped); $offset += $bytes_popped;
+                $number = VarInt::pop($bytes, $offset, $bytes_popped); $offset += $bytes_popped;
 
                 $raw_deck[] = [
                     $set,
