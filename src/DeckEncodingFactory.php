@@ -60,7 +60,7 @@ final class DeckEncodingFactory {
         $raw_deck = [];
 
         foreach ($card_code_deck as $card_code => $count) {
-            if (preg_match("/^(\d+)([a-zA-Z]+)(\d+)$/", $card_code, $matches) === 1) {
+            if (preg_match("/^(\d{2})([a-zA-Z]{2})(\d{3})$/", $card_code, $matches) === 1) {
                 $set = intval($matches[1]);
                 $number = intval($matches[3]);
 
