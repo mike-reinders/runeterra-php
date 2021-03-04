@@ -12,7 +12,9 @@ use MikeReinders\RuneTerraPHP\Exception\VarIntException;
  */
 final class DeckEncoding {
 
-    public const MAX_KNOWN_VERSION = 2;
+    public const MAX_KNOWN_VERSION = 3;
+    public const CURRENT_FORMAT = 1;
+    public const CURRENT_VERSION = 3;
 
     public const KNOWN_FACTIONS = [
         0 => [ 'DE', 'Demacia' ],
@@ -109,7 +111,7 @@ final class DeckEncoding {
             }
 
             return rtrim(Base32::encode(
-                "\x12"
+                chr((self::CURRENT_FORMAT << 4) | self::CURRENT_VERSION)
                 .self::encodeGroup(self::groupByFactionAndSetSorted(self::getNcards($raw_deck, 3)))
                 .self::encodeGroup(self::groupByFactionAndSetSorted(self::getNcards($raw_deck, 2)))
                 .self::encodeGroup(self::groupByFactionAndSetSorted(self::getNcards($raw_deck, 1)))
