@@ -40,11 +40,7 @@ final class DeckEncodingFactory {
         $card_code_deck = [];
 
         foreach ($raw_deck as $raw_card) {
-            if (($faction = DeckEncoding::KNOWN_FACTIONS[$raw_card[1]] ??null) === null) {
-                throw new EncodingException('Invalid deck: faction not found');
-            }
-
-            $card_code = str_pad($raw_card[0], 2, '0', STR_PAD_LEFT) .$faction[0] .str_pad($raw_card[2], 3, '0', STR_PAD_LEFT);
+            $card_code = str_pad($raw_card[0], 2, '0', STR_PAD_LEFT) .DeckEncoding::KNOWN_FACTIONS[$raw_card[1]][0] .str_pad($raw_card[2], 3, '0', STR_PAD_LEFT);
 
             $card_code_deck[$card_code] = $raw_card[3];
         }

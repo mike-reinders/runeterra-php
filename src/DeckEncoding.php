@@ -32,7 +32,7 @@ final class DeckEncoding {
      */
     public static function decode(string $deck_code): array {
         try {
-            $result = [];
+            $raw_deck = [];
 
             $bytes = Base32::decode($deck_code);
             $offset = 0;
@@ -59,7 +59,7 @@ final class DeckEncoding {
                     for ($k = 0; $k < $numOfsInThisGroup; $k++) {
                         $card = VarInt::pop($bytes, $offset, $bytesPopped); $offset += $bytesPopped;
 
-                        $result[] = [
+                        $raw_deck[] = [
                             $set,
                             $faction_id,
                             $card,
@@ -75,7 +75,7 @@ final class DeckEncoding {
                 $faction_id = VarInt::pop($bytes, $offset, $bytesPopped); $offset += $bytesPopped;
                 $number = VarInt::pop($bytes, $offset, $bytesPopped); $offset += $bytesPopped;
 
-                $result[] = [
+                $raw_deck[] = [
                     $set,
                     $faction_id,
                     $number,
@@ -83,7 +83,13 @@ final class DeckEncoding {
                 ];
             }
 
-            return $result;
+            foreach ($raw_deck as $raw_card) {
+                if (!self::isValidCard($raw_card)) {
+                    throw new EncodingException('Invalid deck: card contains invalid values');
+                }
+            }
+
+            return $raw_deck;
         } catch (VarIntException $ex) {
             throw new EncodingException('Invalid deck: VarInt failed to read integer', 0, $ex);
         }
@@ -97,15 +103,7 @@ final class DeckEncoding {
     public static function encode(array $raw_deck): string {
         try {
             foreach ($raw_deck as $raw_card) {
-                if ($isValid = (sizeof($raw_card) == 4)) {
-                    foreach ($raw_card as $value) {
-                        if (!($isValid = is_int($value))) {
-                            break;
-                        }
-                    }
-                }
-
-                if (!$isValid) {
+                if (!self::isValidCard($raw_card)) {
                     throw new EncodingException('Invalid deck: card contains invalid values');
                 }
             }
@@ -120,6 +118,36 @@ final class DeckEncoding {
         } catch (VarIntException $ex) {
             throw new EncodingException('Invalid deck: VarInt failed to read integer', 0, $ex);
         }
+    }
+
+    private static function isValidCard(array $raw_card): bool {
+        if (sizeof($raw_card) != 4) {
+            return false;
+        }
+
+        foreach ($raw_card as $value) {
+            if (!is_int($value)) {
+                return false;
+            }
+        }
+
+        if ($raw_card[0] < 0 || $raw_card[1] > 99) {
+            return false;
+        }
+
+        if ($raw_card[1] < 0 || !isset(self::KNOWN_FACTIONS[$raw_card[1]])) {
+            return false;
+        }
+
+        if ($raw_card[2] < 0 || $raw_card[2] > 999) {
+            return false;
+        }
+
+        if ($raw_card[3] < 0) {
+            return false;
+        }
+
+        return true;
     }
 
 
