@@ -146,7 +146,7 @@ final class DeckEncodingFactory {
      * @param string $class
      */
     private static function validateClass(string $class): void {
-        if (!class_exists($class, false)) {
+        if (!class_exists($class, true)) {
             throw new InvalidArgumentException('Class '.$class.' has not been found');
         }
 
@@ -162,7 +162,7 @@ final class DeckEncodingFactory {
             throw new InvalidArgumentException('Class '.$class.' has to implement '.CardInterface::class);
         }
 
-        if ($reflectMethod === null || $reflectMethod->getNumberOfRequiredParameters() > 0) {
+        if ($reflectMethod !== null && $reflectMethod->getNumberOfRequiredParameters() > 0) {
             throw new InvalidArgumentException('Class '.$class.' does not have a callable constructor');
         }
     }

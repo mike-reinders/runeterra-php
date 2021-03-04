@@ -2,26 +2,16 @@
 
 namespace MikeReinders\RuneTerraPHP\Tests;
 
-use Base32\Base32;
 use MikeReinders\RuneTerraPHP\DeckEncodingFactory;
 use PHPUnit\Framework\TestCase;
 
-final class DeckEncodingTest extends TestCase  {
-
-    /**
-     * @return array
-     */
-    private function getDeckCodesTestData(): array {
-        return array_merge(
-            require(__DIR__.'/DeckCodesTestData.php'),
-            require(__DIR__.'/RiotGamesTestData.php')
-        );
-    }
+final class DeckEncodingTest extends TestCase
+{
 
     public function testDeckEncodingSelfTestAndTestDataFailTest(): void
     {
         $previousExpectedDeck = null;
-        foreach ($this->getDeckCodesTestData() as $deckCode => $expectedDeck) {
+        foreach (TestUtils::getDeckCodeTestData() as $deckCode => $expectedDeck) {
 
             if ($previousExpectedDeck !== null) {
                 $encodedDeck = DeckEncodingFactory::toCardCodeDeck($deckCode);
@@ -38,19 +28,17 @@ final class DeckEncodingTest extends TestCase  {
 
     public function testDeckEncodingSelfTestAndTestDataTest(): void
     {
-        foreach ($this->getDeckCodesTestData() as $deck_code => $expected_deck) {
+        foreach (TestUtils::getDeckCodeTestData() as $deck_code => $expected_deck) {
             $encodedDeck = DeckEncodingFactory::toCardCodeDeck($deck_code);
 
-            $this->assertEqualsCanonicalizing(
+            $this->assertEquals(
                 $expected_deck,
-                $encodedDeck,
-                'Failed to verify Deck-Equality for DeckCode:'.$deck_code
+                $encodedDeck
             );
 
             $this->assertEquals(
-                Base32::encode(substr(Base32::decode($deck_code), 1)),
-                Base32::encode(substr(Base32::decode(DeckEncodingFactory::fromCardCodeDeck($encodedDeck)), 1)),
-                'Failed to verify DeckCode-Equality for DeckCode:'.$deck_code
+                TestUtils::removeVersionFromDeckCode($deck_code),
+                TestUtils::removeVersionFromDeckCode(DeckEncodingFactory::fromCardCodeDeck($encodedDeck))
             );
         }
     }
