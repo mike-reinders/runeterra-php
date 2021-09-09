@@ -12,20 +12,23 @@ use MikeReinders\RuneTerraPHP\Exception\VarIntException;
  */
 final class DeckEncoding {
 
-    public const MAX_KNOWN_VERSION = 3;
+    public const MAX_KNOWN_VERSION = 4;
     public const CURRENT_FORMAT = 1;
-    public const CURRENT_VERSION = 3;
+    public const CURRENT_VERSION = 4;
+    public const INITIAL_VERSION = 1;
 
+    // Integer Identifer => Faction Identifier, Faction Name, Version
     public const KNOWN_FACTIONS = [
-        0 => [ 'DE', 'Demacia' ],
-        1 => [ 'FR', 'Freljord' ],
-        2 => [ 'IO', 'Ionia' ],
-        3 => [ 'NX', 'Noxus' ],
-        4 => [ 'PZ', 'Piltover & Zaun' ],
-        5 => [ 'SI', 'Shadow Isles' ],
-        6 => [ 'BW', 'Bilgewater' ],
-        7 => [ 'SH', 'Shurima' ],
-        9 => [ 'MT', 'Mount Targon' ]
+        0 => [ 'DE', 'Demacia', 1 ],
+        1 => [ 'FR', 'Freljord', 1 ],
+        2 => [ 'IO', 'Ionia', 1 ],
+        3 => [ 'NX', 'Noxus', 1 ],
+        4 => [ 'PZ', 'Piltover & Zaun', 1 ],
+        5 => [ 'SI', 'Shadow Isles', 1 ],
+        6 => [ 'BW', 'Bilgewater', 2 ],
+        7 => [ 'SH', 'Shurima', 2 ],
+        9 => [ 'MT', 'Mount Targon', 3 ],
+        10 => [ 'BC', 'Bandle City', 4 ]
     ];
 
     /**
@@ -111,7 +114,7 @@ final class DeckEncoding {
             }
 
             return rtrim(Base32::encode(
-                chr((self::CURRENT_FORMAT << 4) | self::CURRENT_VERSION)
+                chr((self::CURRENT_FORMAT << 4) | (self::getMinSupportedLibraryVersion($raw_deck) & 0xF))
                 .self::encodeGroup(self::groupByFactionAndSetSorted(self::getNcards($raw_deck, 3)))
                 .self::encodeGroup(self::groupByFactionAndSetSorted(self::getNcards($raw_deck, 2)))
                 .self::encodeGroup(self::groupByFactionAndSetSorted(self::getNcards($raw_deck, 1)))
@@ -120,6 +123,25 @@ final class DeckEncoding {
         } catch (VarIntException $ex) {
             throw new EncodingException('Invalid deck: VarInt failed to read integer', 0, $ex);
         }
+    }
+
+    public static function getMinSupportedLibraryVersion(array $raw_deck) {
+        if (!$raw_deck) {
+            return self::INITIAL_VERSION;
+        }
+
+        $max = 0;
+
+        foreach ($raw_deck as $raw_card) {
+            if (self::KNOWN_FACTIONS[$raw_card[1]][2] !== null ) {
+                $max = max($max, self::KNOWN_FACTIONS[$raw_card[1]][2]);
+            }
+            else {
+                $max = max($max, self::MAX_KNOWN_VERSION);
+            }
+        }
+
+        return $max;
     }
 
     private static function isValidCard(array $raw_card): bool {
