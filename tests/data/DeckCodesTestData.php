@@ -458,5 +458,22 @@ return [
         '05BC198' => 1,
         '01DE009' => 1,
         '04DE002' => 1
+    ],
+    'EUAQCBQMBAAQCBQGDUBACBQFAMAQMAAG' => [
+        '06RU008' => 3,
+        '06SI003' => 1,
+        '06DE006' => 1,
+        '06BW029' => 2
+    ],
+    'EUBACBQMBAAQKCIFAEAQMBQ5AIAQMBIDAEDAABQ' => [
+        '06RU008' => 3,
+        '06SI003' => 1,
+        '06DE006' => 1,
+        '06BW029' => 2,
+        '05MT005' => 3
+    ],
+    'EUAQEBQMAUMQAAA' => [
+        '06RU025' => 3,
+        '06RU005' => 3
     ]
 ];
