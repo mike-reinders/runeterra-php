@@ -12,9 +12,9 @@ use MikeReinders\RuneTerraPHP\Exception\VarIntException;
  */
 final class DeckEncoding {
 
-    public const MAX_KNOWN_VERSION = 4;
+    public const MAX_KNOWN_VERSION = 5;
     public const CURRENT_FORMAT = 1;
-    public const CURRENT_VERSION = 4;
+    public const CURRENT_VERSION = 5;
     public const INITIAL_VERSION = 1;
 
     // Integer Identifer => Faction Identifier, Faction Name, Version
@@ -28,7 +28,8 @@ final class DeckEncoding {
         6 => [ 'BW', 'Bilgewater', 2 ],
         7 => [ 'SH', 'Shurima', 2 ],
         9 => [ 'MT', 'Mount Targon', 3 ],
-        10 => [ 'BC', 'Bandle City', 4 ]
+        10 => [ 'BC', 'Bandle City', 4 ],
+        12 => [ 'RU', 'Runeterra', 5 ]
     ];
 
     /**
